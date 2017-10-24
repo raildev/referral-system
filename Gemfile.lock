@@ -8,7 +8,7 @@ GIT
 GEM
   remote: http://rubygems.org/
   specs:
-    ZenTest (4.8.0)
+    ZenTest (4.11.1)
     abstract (1.0.0)
     actionmailer (3.0.6)
       actionpack (= 3.0.6)
@@ -169,7 +169,7 @@ DEPENDENCIES
   faker
   jquery-rails
   machinist (= 1.0.6)
-  mysql2 (= 0.2.7)
+  mysql2 (< 0.3)
   newrelic_rpm
   nuntium_api (>= 0.11)
   rails (= 3.0.6)
@@ -180,3 +180,6 @@ DEPENDENCIES
   simplecov
   webrat
   will_paginate!
+
+BUNDLED WITH
+   1.15.4
