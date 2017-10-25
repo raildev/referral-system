@@ -169,7 +169,7 @@ DEPENDENCIES
   faker
   jquery-rails
   machinist (= 1.0.6)
-  mysql2 (< 0.3)
+  mysql2 (= 0.2.7)
   newrelic_rpm
   nuntium_api (>= 0.11)
   rails (= 3.0.6)

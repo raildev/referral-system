@@ -9,7 +9,7 @@ gem 'rails', '3.0.6'
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
-gem 'mysql2', '< 0.3'
+gem 'mysql2', "=0.2.7"
 gem 'rake', '0.8.7'
 
 
@@ -41,7 +41,7 @@ gem 'rake', '0.8.7'
 # end
 
 gem "capistrano"
-gem "rvm-capistrano"
+gem "rvm-capistrano", require:false
 
 gem 'will_paginate', :git => 'git://github.com/mislav/will_paginate.git', :branch => 'rails3'
 gem 'jquery-rails'
