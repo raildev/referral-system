@@ -1,5 +1,5 @@
 <%= content_for :head do  %>
-   <%= javascript_include_tag "http://maps.google.com/maps/api/js?sensor=false"  %>
+   <%= javascript_include_tag "http://maps.google.com/maps/api/js?sensor=false&key=#{GoogleMap.api_key}"  %>
    <%= javascript_include_tag "styled_marker"  %>
    <%= javascript_include_tag "map.min"  %>
    <%= javascript_include_tag "map.markerwithlabel"  %>
@@ -99,4 +99,3 @@
     <%= form.submit "Save" %>
   </div>
 <% end %>
-

@@ -4,3 +4,5 @@ log/*.log
 tmp/
 .hg/*
 
+config/googlemap.yml
+config/nuntium.yml
