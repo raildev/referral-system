@@ -13,7 +13,7 @@ set :rvm_type, :user
 #use malaria-consortium as our dir name
 set :application, "malaria-consortium"
 
-set :repository,  "git@github.com:chenwebdev/referral-system.git"
+set :repository,  "https://github.com/Thyda-Eng/referral-system.git"
 
 set :scm, :git # You can set :scm explicitly or Capistrano will make an intelligent guess based on known version control directory names
 
@@ -22,7 +22,7 @@ set :scm, :git # You can set :scm explicitly or Capistrano will make an intellig
 # Or: `accurev`, `bzr`, `cvs`, `darcs`, `git`, `mercurial`, `perforce`, `subversion` or `none`
 
 # ssh user for remote server
-set :user , "ilab"
+set :user , "user"
 set :use_sudo, false
 
 default_run_options[:pty] = true
@@ -46,21 +46,23 @@ before "deploy:restart", "deploy:migrate"
 
 after "deploy:finalize_update", "deploy:symlink_configs"
 
-namespace :deploy do 
-  
+namespace :deploy do
+
   task :bundle_install do
-    #run "cd #{deploy_to}/current && gem install bundler" 
+    #run "cd #{deploy_to}/current && gem install bundler"
   end
-  
+
   task :bundle_gems do
     run "cd #{deploy_to}/current && bundle install"
   end
-  
+
   task :restart, :roles => :app do
     run "touch #{current_path}/tmp/restart.txt"
   end
-  
+
   task :symlink_configs, :roles => :app do
     run "ln -nfs #{shared_path}/config/database.yml #{release_path}/config/database.yml"
+    run "ln -nfs #{shared_path}/config/nuntium.yml #{release_path}/config/nuntium.yml"
+    run "ln -nfs #{shared_path}/config/googlemap.yml #{release_path}/config/googlemap.yml"
   end
 end
