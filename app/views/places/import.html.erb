@@ -28,12 +28,15 @@
                                 $(".download_files").html(handler.response);
 			}
 	    });
+
+      $(document.body).delegate(".confirm_import", "click", function(){
+          loading(null, "Importing data to server ...");
+          $("#form_import").submit();
+          return false;
+      });
 	});
-        $(document.body).delegate(".confirm_import", "click", function(){
-            loading(null, "Importing data to server ...");
-            $("#form_import").submit();
-            return false;
-        });
+
+
 	</script>
 <% end %>
 

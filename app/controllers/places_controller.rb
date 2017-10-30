@@ -5,19 +5,19 @@ class PlacesController < ApplicationController
     @places = Place
 
     @places = @places.search_for_autocomplete(params) if(!params[:query].blank? || !params[:type].blank?)
-    
+
     @query = params[:query]
     @type  = params[:type]
     sort_params = sort_params(params)
     @revert = sort_params[:revert_dir]
-    
+
     @places = @places.paginate :page => get_page, :per_page => PerPage, :order => "#{sort_params[:field]} #{sort_params[:dir]} "
     @places.all
     render :file => "/places/_places.html.erb", :layout => false if request.xhr?
-    
+
   end
 
-  def create   
+  def create
     begin
       cls_name = params[:place][:type].constantize
       place = cls_name.new :name => params[:place][:name],
@@ -28,16 +28,15 @@ class PlacesController < ApplicationController
 
       if params[:place][:parent_code].present?
         parent = Place.find(params[:place][:parent_code])
-        p parent
         place.parent = parent
       end
 
       place.save
       flash[:notice] = "#{place.type} - #{view_context.link_to(place.name, edit_place_path(place))} has been created"
       render :text => "sucess"
-      
+
     rescue Exception => e
-      render :text => e.message #e.backtrace.inspect  
+      render :text => e.message #e.backtrace.inspect
     end
   end
 
@@ -101,12 +100,12 @@ class PlacesController < ApplicationController
     @code = params[:code]
     @place = Place.find_by_code(params[:code])
   end
-  
+
   def hierachy
     @places = Place.where([" parent_id = :id", :id => params[:id]]).map{|place| [place.intended_place_code, place.id] }
     render :json => @places
   end
-  
+
   def search
     options = {
       :query => params[:query],
