@@ -7,18 +7,19 @@ class HealthCenterReport < Report
                                                     :age => age,
                                                     :sex => sex,
                                                     :day => day,
-                                                    :village_code => village.nil? ? "" : village.code
+                                                    :village_code => village.nil? ? "" : village.code,
+                                                    :date => created_at.strftime("%d/%m/%Y")
   end
-  
+
   def valid_alerts
     alerts = []
     msg_body = single_case_message
-    
+
     # Always notify the HC about the new case (TODO: what if it's already a HC report?)
     alert_health_center = health_center.create_alerts(msg_body, :except => sender)
-    
+
     alerts += alert_health_center
-    
+
     hc_threshold = Threshold.find_for health_center
     if hc_threshold
        if health_center.reports_reached_threshold hc_threshold
@@ -31,12 +32,12 @@ class HealthCenterReport < Report
        alert_od = od.create_alerts msg_body
        alerts += alert_od
     end
-    
+
     # alert to himself
     alert_hc = self.sender.message(human_readable)
     alerts += [alert_hc]
     alerts
-  end  
+  end
 
   def single_case_message
     template_values = {
