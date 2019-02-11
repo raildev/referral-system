@@ -8,7 +8,10 @@ class HealthCenterReport < Report
                                                     :sex => sex,
                                                     :day => day,
                                                     :village_code => village.nil? ? "" : village.code,
-                                                    :date => created_at.strftime("%d/%m/%Y")
+                                                    :date => created_at.strftime("%d/%m/%Y"),
+                                                    :health_center => health_center.name,
+                                                    :hc => health_center.name,
+                                                    :od => od.name
   end
 
   def valid_alerts
@@ -48,7 +51,9 @@ class HealthCenterReport < Report
       :day => day,
       :village => village.nil? ? "" : village.name,
       :contact_number => sender.phone_number,
-      :health_center => sender.place.name
+      :hc => sender.place.name,
+      :health_center => sender.place.name,
+      :od => od.name
     }
     Setting[:single_hc_case_template].apply(template_values)
   end

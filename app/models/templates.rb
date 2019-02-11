@@ -9,8 +9,8 @@ class Templates
   }
 
   Keys = {
-    :single_village_case_template => {:params => %w(test_result malaria_type sex age day date health_center village contact_number), :label => 'individual case report from a village malaria worker'},
-    :single_hc_case_template => {:params => %w(test_result malaria_type sex age day village date contact_number health_center), :label => 'individual case report from a health center'},
+    :single_village_case_template => {:params => %w(test_result malaria_type sex age day date od hc village contact_number), :label => 'individual case report from a village malaria worker'},
+    :single_hc_case_template => {:params => %w(test_result malaria_type sex age day date od hc village date contact_number), :label => 'individual case report from a health center'},
     :aggregate_village_cases_template => {:params => %w(cases pv_cases pf_cases f_cases v_cases m_cases village), :label => 'aggregated cases report at village level'},
     :aggregate_hc_cases_template => {:params => %w(cases pv_cases pf_cases f_cases v_cases m_cases health_center), :label => 'aggregated cases report at health center level'},
     :successful_health_center_report => {:params => %w(test_result malaria_type age sex day village_code), :label => 'successful health center report message'},

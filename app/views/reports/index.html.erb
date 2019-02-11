@@ -32,7 +32,9 @@
           <th>Day</th>
           <th>Mobile?</th>
           <th>Reported at</th>
-          <th>Health Center</th>
+          <th>Province</th>
+          <th>OD</th>
+          <th>HC</th>
           <th>Village</th>
           <th>Trigger</th>
           <th></th>
@@ -40,7 +42,7 @@
       </thead>
       <% @reports.each_with_index do |report, i| %>
         <tr class="<%= i.parity %> <%= 'ignored' if report.ignored? %>">
-          <td title="<%= report.created_at %>"><%= time_ago_in_words report.created_at %> ago</td>
+          <td title="<%= report.created_at %>"><%= report.created_at.strftime("%d/%m/%Y") %></td>
           <td class="user_messages">
             <%= link_to report.sender.user_name, reports_user_path(:id => report.sender.id, :report_id => report.id) if report.sender %>
           </td>
@@ -60,6 +62,8 @@
           <% end %>
           <td><%= report.mobile? ? 'Yes' : 'No' %></td>
           <td><%= report.type == 'HealthCenterReport' ? 'health center' : 'village' unless report.error? %></td>
+          <td><%= report.province.try(:short_description) %></td>
+          <td><%= report.od.try(:short_description) %></td>
           <td><%= report.health_center.try(:short_description) %></td>
           <td><%= report.village.try(:short_description) %></td>
           <td><%= report.trigger_to_od == true ? "Yes": "No"  %>  </td>

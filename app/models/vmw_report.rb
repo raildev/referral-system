@@ -10,7 +10,8 @@ class VMWReport < Report
                        :sex => sex,
                        :day => day,
                        :date => created_at.strftime("%d/%m/%Y"),
-                       :health_center => health_center.name
+                       :hc => health_center.name,
+                       :od => od.name
 
     body
   end
@@ -56,7 +57,9 @@ class VMWReport < Report
       :day => day,
       :village => village.name,
       :contact_number => sender.phone_number,
-      :date => created_at
+      :date => created_at.strftime("%d/%m/%Y"),
+      :hc => health_center.name,
+      :od => od.name
     }
     body = Setting[:single_village_case_template].apply(template_values)
     body

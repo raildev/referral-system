@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130325034234) do
+ActiveRecord::Schema.define(:version => 20190211062255) do
 
   create_table "alert_pf_notifications", :force => true do |t|
     t.integer  "user_id"
@@ -148,7 +148,7 @@ ActiveRecord::Schema.define(:version => 20130325034234) do
 
   create_table "settings", :force => true do |t|
     t.string   "param"
-    t.string   "value"
+    t.text     "value"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

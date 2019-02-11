@@ -1,45 +1,45 @@
 require "spec_helper"
 describe HealthCenterReport do
   it "should return readable message from :successful_mobile_village_report for mobile patient key " do
-    Setting[:successful_health_center_report] = "malaria : {malaria_type}, sex : {sex}, age : {age}, day : {day} "
+    Setting[:successful_health_center_report] = "malaria : {malaria_type}, sex : {sex}, age : {age}, day : {day}, hc : {hc} "
 
     report = HealthCenterReport.make :mobile => true, :malaria_type => "F", :age => 27, :sex => "Female", :day => 28
-    report.human_readable.should eq "malaria : F, sex : Female, age : 27, day : 28 "
+    report.human_readable.should eq "malaria : F, sex : Female, age : 27, day : 28, hc : #{report.health_center.name} "
   end
-   
+
   it "should return single case message translated" do
      hc = HealthCenter.make :name => "Kkkk"
      sender = User.make :phone_number => "85599123456", :place => hc
-     
-     
-    
+
+
+
      report = HealthCenterReport.make :malaria_type => "F", :sex => "Female", :age => 20,
       :day => 28, :place => hc, :sender => sender
-      
-     Setting[:single_hc_case_template] = "hc :{health_center}, test_result => {test_result}, malaria_type => {malaria_type},sex => {sex}, age => {age}, day => {day}, village => {village},contact_number => {contact_number}"
-    
-     
-     report.single_case_message.should eq "hc :Kkkk, test_result => Pf, malaria_type => F,sex => Female, age => 20, day => 28, village => #{report.village.name},contact_number => 85599123456"
+
+     Setting[:single_hc_case_template] = "hc :{health_center}, test_result => {test_result}, malaria_type => {malaria_type},sex => {sex}, age => {age}, day => {day}, village => {village},contact_number => {contact_number}, hc => {hc}, od => {od} "
+
+
+     report.single_case_message.should eq "hc :Kkkk, test_result => Pf, malaria_type => F,sex => Female, age => 20, day => 28, village => #{report.village.name},contact_number => 85599123456, hc => #{report.health_center.name}, od => #{report.od.name} "
   end
-  
+
   describe "valid_alert" do
      before(:each) do
-        
+
      end
-     
+
      describe "with threshold" do
        it "should alert to health_center, sender and od when reach threshold " do
           od1 = OD.make :code => "0001"
           od2 = OD.make :code => "0002"
 
           hc11 = HealthCenter.make  :parent => od1, :code => "000001"
-          hc12 = HealthCenter.make  :parent => od1, :code => "000002" 
-          hc13 = HealthCenter.make  :parent => od1, :code => "000003" 
+          hc12 = HealthCenter.make  :parent => od1, :code => "000002"
+          hc13 = HealthCenter.make  :parent => od1, :code => "000003"
 
           hc21 = HealthCenter.make  :parent => od2, :code => "000011"
-          hc22 = HealthCenter.make  :parent => od2, :code => "000012" 
-          hc23 = HealthCenter.make  :parent => od2, :code => "000013" 
-          hc24 = HealthCenter.make  :parent => od2, :code => "000014" 
+          hc22 = HealthCenter.make  :parent => od2, :code => "000012"
+          hc23 = HealthCenter.make  :parent => od2, :code => "000013"
+          hc24 = HealthCenter.make  :parent => od2, :code => "000014"
 
           #hc admin
           hc_user1     = User.make :place => hc11 ,   :phone_number => "85512223457"
@@ -62,8 +62,8 @@ describe HealthCenterReport do
 
           alert_hc = [{:to=>"sms://85512223458", :body=>"hc: message sent", :from=>"malariad0://system"}]
 
-          alert_od = [{:to=>"sms://85512323456", :body=>"hc: aggregate report", :from=>"malariad0://system"}, 
-                      {:to=>"sms://85512323457", :body=>"hc: aggregate report", :from=>"malariad0://system"}, 
+          alert_od = [{:to=>"sms://85512323456", :body=>"hc: aggregate report", :from=>"malariad0://system"},
+                      {:to=>"sms://85512323457", :body=>"hc: aggregate report", :from=>"malariad0://system"},
                       {:to=>"sms://85512323458", :body=>"hc: aggregate report", :from=>"malariad0://system"}]
 
           alert_sender = {:to=>"sms://85512223457", :body=>"hc: send back", :from=>"malariad0://system"}
@@ -77,13 +77,13 @@ describe HealthCenterReport do
           od2 = OD.make :code => "0002"
 
           hc11 = HealthCenter.make  :parent => od1, :code => "000001"
-          hc12 = HealthCenter.make  :parent => od1, :code => "000002" 
-          hc13 = HealthCenter.make  :parent => od1, :code => "000003" 
+          hc12 = HealthCenter.make  :parent => od1, :code => "000002"
+          hc13 = HealthCenter.make  :parent => od1, :code => "000003"
 
           hc21 = HealthCenter.make  :parent => od2, :code => "000011"
-          hc22 = HealthCenter.make  :parent => od2, :code => "000012" 
-          hc23 = HealthCenter.make  :parent => od2, :code => "000013" 
-          hc24 = HealthCenter.make  :parent => od2, :code => "000014" 
+          hc22 = HealthCenter.make  :parent => od2, :code => "000012"
+          hc23 = HealthCenter.make  :parent => od2, :code => "000013"
+          hc24 = HealthCenter.make  :parent => od2, :code => "000014"
 
           #hc admin
           hc_user1     = User.make :place => hc11 ,   :phone_number => "85512223457"
@@ -113,20 +113,20 @@ describe HealthCenterReport do
 
         end
      end
-     
+
      describe "without threshold" do
        it "should always alert to health_center, sender and od " do
           od1 = OD.make :code => "0001"
           od2 = OD.make :code => "0002"
 
           hc11 = HealthCenter.make  :parent => od1, :code => "000001"
-          hc12 = HealthCenter.make  :parent => od1, :code => "000002" 
-          hc13 = HealthCenter.make  :parent => od1, :code => "000003" 
+          hc12 = HealthCenter.make  :parent => od1, :code => "000002"
+          hc13 = HealthCenter.make  :parent => od1, :code => "000003"
 
           hc21 = HealthCenter.make  :parent => od2, :code => "000011"
-          hc22 = HealthCenter.make  :parent => od2, :code => "000012" 
-          hc23 = HealthCenter.make  :parent => od2, :code => "000013" 
-          hc24 = HealthCenter.make  :parent => od2, :code => "000014" 
+          hc22 = HealthCenter.make  :parent => od2, :code => "000012"
+          hc23 = HealthCenter.make  :parent => od2, :code => "000013"
+          hc24 = HealthCenter.make  :parent => od2, :code => "000014"
 
           #hc admin
           hc_user1     = User.make :place => hc11 ,   :phone_number => "85512223457"
@@ -145,28 +145,28 @@ describe HealthCenterReport do
           report = HealthCenterReport.make(:place => hc11, :sender => hc_user1)
           report = HealthCenterReport.make(:place => hc11, :sender => hc_user1)
 
-            
+
           alert_hc = [{:to=>"sms://85512223458", :body=>"hc: message sent", :from=>"malariad0://system"}]
-          
-          alert_od = [{:to=>"sms://85512323456", :body=>"hc: message sent", :from=>"malariad0://system"}, 
-                      {:to=>"sms://85512323457", :body=>"hc: message sent", :from=>"malariad0://system"}, 
+
+          alert_od = [{:to=>"sms://85512323456", :body=>"hc: message sent", :from=>"malariad0://system"},
+                      {:to=>"sms://85512323457", :body=>"hc: message sent", :from=>"malariad0://system"},
                       {:to=>"sms://85512323458", :body=>"hc: message sent", :from=>"malariad0://system"}]
-                    
+
           alert_sender = {:to=>"sms://85512223457", :body=>"hc: send back", :from=>"malariad0://system"}
 
-        
+
           alerts = alert_hc + alert_od + [alert_sender]
 
           report.valid_alerts.should =~ alerts
 
        end
      end
-     
-     
+
+
   end
 
-       
-  
-  
-  
+
+
+
+
 end

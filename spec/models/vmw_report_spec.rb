@@ -2,9 +2,9 @@ require "spec_helper"
 
 describe VMWReport do
    before(:each) do
-     Setting[:successful_mobile_village_report] = "mobile --- malaria : {malaria_type}, sex : {sex}, age : {age}, day : {day}, date : {date} "
+     Setting[:successful_mobile_village_report] = "mobile --- malaria : {malaria_type}, sex : {sex}, age : {age}, day : {day}, date : {date}, hc : {hc}, od : {od} "
      Setting[:successful_non_mobile_village_report] = "non mobile --- malaria : {malaria_type}, sex : {sex}, age : {age}, day : {day} "
-     Setting[:single_village_case_template] = "test_result => {test_result}, malaria_type => {malaria_type},sex => {sex}, age => {age}, day => {day}, village => {village},contact_number => {contact_number}"
+     Setting[:single_village_case_template] = "test_result => {test_result}, malaria_type => {malaria_type},sex => {sex}, age => {age}, day => {day}, village => {village},contact_number => {contact_number}, date => {date}, hc => {hc}, od => {od} "
      Setting[:aggregate_village_cases_template] = " cases: {cases}, pfcases: {pf_cases},
        pv_cases => {pv_cases}, f_cases => {f_cases}, v_cases => {v_cases},m_cases => {m_cases}, village => {village}"
   end
@@ -12,7 +12,7 @@ describe VMWReport do
    describe "human_readable" do
      it "should return readable message from :successful_mobile_village_report for mobile patient key " do
        report = VMWReport.make :mobile => true, :malaria_type => "F", :age => 27, :sex => "Female", :day => 28
-       report.human_readable.should eq "mobile --- malaria : F, sex : Female, age : 27, day : 28, date : #{Date.today.strftime("%d/%m/%Y")} "
+       report.human_readable.should eq "mobile --- malaria : F, sex : Female, age : 27, day : 28, date : #{Date.today.strftime("%d/%m/%Y")}, hc : #{report.health_center.name}, od : #{report.od.name} "
      end
 
     it "should return readable message from :successful_mobile_village_report for non mobile patient key " do
@@ -27,7 +27,7 @@ describe VMWReport do
 
      report = VMWReport.make :malaria_type => "F", :sex => "Female", :age => 20, :day => 28, :village => village, :place => village, :sender => sender
 
-     report.single_case_message.should eq "test_result => Pf, malaria_type => F,sex => Female, age => 20, day => 28, village => Kkkk,contact_number => 85599123456"
+     report.single_case_message.should eq "test_result => Pf, malaria_type => F,sex => Female, age => 20, day => 28, village => Kkkk,contact_number => 85599123456, date => #{Date.today.strftime("%d/%m/%Y")}, hc => #{report.health_center.name}, od => #{report.od.name} "
    end
 
    describe "valid_alert" do
