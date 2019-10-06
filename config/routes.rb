@@ -20,50 +20,56 @@ Local::Application.routes.draw do
       get "pushpin"
     end
   end
-  
+
+  namespace :api do
+    namespace :v1 do
+      post '/parse_message', to: 'reports#parse_message'
+    end
+  end
+
   namespace :referral do
     root :to => "reports#index"
     get "templates/configs/" , :to => "templates#configs"
     post "templates/update_configs/" , :to => "templates#update_configs"
-    
+
     post "fields/bulk",             :to => "fields#bulk_update"
     post "fields/constraint",       :to => "fields#constraint"
     delete "fields/rm_constraint",  :to => "fields#rm_constraint"
     get  "constraints/view/",       :to => "constraints#view"
-    
+
     post "report/delate_all",       :to => "reports#delete_all"
-    
+
     post "message_formats/save" ,   :to => "message_formats#save"
     get  "message_formats/test" ,   :to => "message_formats#test"
-    
+
     get "reports/rectify",        :to => "reports#rectify"
     post "reports/apply",         :to => "reports#apply"
-    
+
     match "reports/simulate",  :to => "reports#simulate"
     match "reports/duplicated",  :to => "reports#duplicated"
     match "reports/ignored",  :to => "reports#ignored"
     match "reports/error",  :to => "reports#error"
-    
+
     match "reports/valid",    :to => "reports#valid"
     match "reports/toggle",    :to => "reports#toggle"
     match "reports/search",    :to => "reports#search"
     match "reports/confirmed",    :to => "reports#confirmed"
     match "reports/not_confirmed",    :to => "reports#not_confirmed"
-    
+
     match "users/search"  , :to => "users#search"
     match "users/edit-md0", :to => "users#edit_md0"
-    
-    
+
+
     resources :reports
     resources :message_formats
-    resources :dashboards 
+    resources :dashboards
     resources :users
     resources :fields do
       resources :constraints
     end
-    
+
   end
-  
+
   resources :reports do
     collection do
       get "list_ignore"

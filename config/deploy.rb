@@ -64,5 +64,6 @@ namespace :deploy do
     run "ln -nfs #{shared_path}/config/database.yml #{release_path}/config/database.yml"
     run "ln -nfs #{shared_path}/config/nuntium.yml #{release_path}/config/nuntium.yml"
     run "ln -nfs #{shared_path}/config/googlemap.yml #{release_path}/config/googlemap.yml"
+    run "ln -nfs #{shared_path}/config/mis.yml #{release_path}/config/mis.yml"
   end
 end
