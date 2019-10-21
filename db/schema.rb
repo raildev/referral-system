@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20191020151752) do
+ActiveRecord::Schema.define(:version => 20191021124837) do
 
   create_table "alert_pf_notifications", :force => true do |t|
     t.integer  "user_id"
@@ -194,6 +194,7 @@ ActiveRecord::Schema.define(:version => 20191020151752) do
     t.integer  "apps_mask",                                  :default => 1
     t.integer  "former_district_hospital_id"
     t.boolean  "from_mis_app",                               :default => false
+    t.integer  "referral_hospital_id"
   end
 
   add_index "users", ["country_id", "place_class"], :name => "index_users_on_country_id_and_place_class"
