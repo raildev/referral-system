@@ -1,6 +1,6 @@
 class Place < ActiveRecord::Base
   # The hierarchy of place types. Must be ordered by top to bottom.
-  Types = ["Country", "Province", "OD", "HealthCenter", "Village"]
+  Types = ["Country", "Province", "OD", "HealthCenter", "Village", "FormerDistrictHospital", "ProvincialHospital", "ReferralHospital", "HealthPost"]
 
   has_many :users
   has_many :reports
@@ -19,7 +19,7 @@ class Place < ActiveRecord::Base
   def self.list
     all.map{|place| place.intended_place_code }
   end
-  
+
   def self.find_by_code(code)
     return nil if code.blank?
     pieces = code.strip.split(/\s/, 2)
@@ -84,7 +84,7 @@ class Place < ActiveRecord::Base
   def short_description
     "#{code} #{name}"
   end
-  
+
   def self.find_from_parent id
     if !id.nil?
       where(["parent_id = :parent_id", { :parent_id => id}])
@@ -92,7 +92,7 @@ class Place < ActiveRecord::Base
       []
     end
   end
-  
+
   def self.auto_complete_type_ahead options
     places = self.search_for_autocomplete(options).limit(10)
     result = places.map{|place| place.intended_place_code}
@@ -106,8 +106,8 @@ class Place < ActiveRecord::Base
         result = result.where "code LIKE ?", "#{options[:query].strip}%"
       else
         result = result.where "name LIKE :q OR name_kh LIKE :q ", :q => "#{options[:query].strip}%"
-      end  
-    end  
+      end
+    end
 
     if !options[:type].blank?
         result = result.where "type = :type ", :type => "#{options[:type].strip}"
@@ -122,12 +122,12 @@ class Place < ActiveRecord::Base
     end
     p
   end
-  
+
   def acknowledgemente body
     valid_users = users.select{|user| (user.status && user.is_from_referral?)}
     valid_users.map{|user| user.message(body) }
   end
-  
+
   def acknowledge_facilitator(body)
     valid_users = users.select{|user| (user.status && user.is_from_referral? && user.role == User::ROLE_REF_FACILITATOR)}
     valid_users.map{|user| user.message(body) }
@@ -180,5 +180,5 @@ class Place < ActiveRecord::Base
   def intended_parent_code_must_exist
     errors.add :intended_parent_code, "doesn't exist"
   end
-  
+
 end

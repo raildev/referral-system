@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20190211062255) do
+ActiveRecord::Schema.define(:version => 20191020151752) do
 
   create_table "alert_pf_notifications", :force => true do |t|
     t.integer  "user_id"
@@ -36,11 +36,12 @@ ActiveRecord::Schema.define(:version => 20190211062255) do
     t.integer  "parent_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "type",       :limit => 15
-    t.decimal  "lat",                      :precision => 11, :scale => 8
-    t.decimal  "lng",                      :precision => 11, :scale => 8
+    t.string   "type",         :limit => 55
+    t.decimal  "lat",                        :precision => 11, :scale => 8
+    t.decimal  "lng",                        :precision => 11, :scale => 8
     t.string   "hierarchy"
     t.string   "abbr"
+    t.boolean  "from_mis_app",                                              :default => false
   end
 
   add_index "places", ["parent_id", "name"], :name => "index_places_on_parent_id_and_name"
@@ -135,6 +136,7 @@ ActiveRecord::Schema.define(:version => 20190211062255) do
     t.boolean  "trigger_to_od"
     t.integer  "day"
     t.boolean  "disabled",         :default => false
+    t.boolean  "from_mis_app",     :default => false
   end
 
   add_index "reports", ["country_id", "error", "ignored"], :name => "index_reports_on_country_id_and_error_and_ignored"
@@ -172,24 +174,26 @@ ActiveRecord::Schema.define(:version => 20190211062255) do
     t.integer  "place_id"
     t.string   "salt"
     t.string   "remember_token"
-    t.string   "encrypted_password",     :limit => 128, :default => "",   :null => false
+    t.string   "encrypted_password",          :limit => 128, :default => "",    :null => false
     t.string   "email"
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",                         :default => 0
+    t.integer  "sign_in_count",                              :default => 0
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
-    t.string   "place_class",            :limit => 15
+    t.string   "place_class",                 :limit => 15
     t.integer  "health_center_id"
     t.integer  "od_id"
     t.integer  "province_id"
     t.integer  "country_id"
     t.integer  "village_id"
-    t.boolean  "status",                                :default => true
-    t.integer  "apps_mask",                             :default => 1
+    t.boolean  "status",                                     :default => true
+    t.integer  "apps_mask",                                  :default => 1
+    t.integer  "former_district_hospital_id"
+    t.boolean  "from_mis_app",                               :default => false
   end
 
   add_index "users", ["country_id", "place_class"], :name => "index_users_on_country_id_and_place_class"

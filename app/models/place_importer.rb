@@ -8,6 +8,56 @@ class PlaceImporter
     @file = file
   end
 
+  def import_mis
+    existing_places = Hash[Place.all.map{|x| [x.code, x]}]
+    new_places = []
+    levels = Place::Types[1..-1].map(&:constantize)
+    i = 0
+    r = 0
+    white_list_place_type = ['Province', 'OD', 'HC', 'Village', 'FDH', 'PH', 'RH', 'HP']
+    CSV.foreach @file, :headers => :first_row, :skip_blanks => true do |row|
+      parent = nil
+
+      r += 1
+      code = (row[0] == 'Village') ? row[1].slice(0..7) : row[1]
+      existing_place = existing_places[code]
+      if existing_place.nil? && (white_list_place_type.include?(row[0]))
+        place_type = row[0]
+        if row[0] == 'Province'
+          parent = Place.first
+        else
+          parent_code = row[7].split('-')[0]
+          parent = Place.find_by_code(parent_code)
+          if row[0] == 'HC'
+            place_type = 'HealthCenter'
+          elsif row[0] == 'FDH'
+            place_type = 'FormerDistrictHospital'
+          elsif row[0] == 'PH'
+            place_type = 'ProvincialHospital'
+          elsif row[0] == 'RH'
+            place_type = 'ReferralHospital'
+          elsif row[0] == 'HP'
+            place_type = 'HealthPost'
+          end
+        end
+
+        place = Place.new(name: row[2], name_kh: row[4], code: code,
+          parent_id: parent.id, type: place_type, lat: row[5], lng: row[6],
+          hierarchy: '', abbr: row[3], from_mis_app: true)
+
+        if place.valid?
+          place.type = place_type
+          place.save
+          i += 1
+        end
+      end
+    end
+    p "new place #{i}"
+    p "all #{r}"
+
+    new_places
+  end
+
   def import
     process_csv
   end
@@ -27,7 +77,6 @@ class PlaceImporter
 
     CSV.foreach @file, :headers => :first_row, :skip_blanks => true do |row|
       parent = nil
-
       levels.each do |level|
         fields = fill_fields row, level, :parent => parent
         existing_place = existing_places[fields[:code]]

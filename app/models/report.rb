@@ -25,29 +25,29 @@ class Report < ActiveRecord::Base
   def self.readable_sex sex
      sex.downcase == "m" ? "Male" : "Female"
   end
-  
+
   def self.process params
     report = self.decode params
     report.save(:validate => false)
     report
   end
- 
-  
+
+
   def self.decode params
     parser = Report.create_parser params
     report = parser.parse
     report
   end
-  
+
   def parse_quality
     formats = ["malaria_type", "age", "sex", "day"]
     quality = 0
     formats.each do |item|
-      quality = quality+1  if !self.send(item).nil? 
+      quality = quality+1  if !self.send(item).nil?
     end
     (100*quality) / formats.count
   end
-  
+
   def generate_alerts
     if(self.error)
       error_alert
@@ -55,14 +55,14 @@ class Report < ActiveRecord::Base
       valid_alerts
     end
   end
-  
+
   def translate_message_for key
     template_values = {
        :error_message => self.text
     }
     Setting[key].apply(template_values)
   end
-    
+
   def error_alert
     body = translate_message_for self.error_message
     self.sender.message(body)
@@ -139,7 +139,7 @@ class Report < ActiveRecord::Base
 
     reports = reports.no_error.not_ignored
 
-    
+
     if options[:ncase] == '0'
 
       # select only places that reported
@@ -222,35 +222,35 @@ class Report < ActiveRecord::Base
   def valid_reminder_case?
     not self.malaria_type.nil? and (self.malaria_type.upcase == "F" or self.malaria_type.upcase == "M") and self.error_message.nil?
   end
-  
+
   private
 
   def complete_fields
     self.malaria_type = self.malaria_type.nil? ? nil : self.malaria_type.upcase
-    
+
     if self.class == VMWReport
       self.village = self.place
       self.health_center = self.place.parent
     elsif self.class == HealthCenterReport
       self.health_center = self.place
     end
-    
+
     #self.health_center = !village_id.nil? ? village.parent : (place.class.to_s == "HealthCenter" ? place: nil)
-    
+
     self.od = health_center.parent if health_center_id?
     self.province = od.parent if od_id?
     self.country = province.parent if province_id?
   end
-  
-  
-  
+
+
+
   def self.create_parser params
-    return VMWReportParser.new(params) if(params[:sender].place.class.to_s == "Village")
-    return HCReportParser.new(params)  if(params[:sender].place.class.to_s == "HealthCenter") 
+    return VMWReportParser.new(params) if(params[:sender].place_class.to_s == "Village")
+    return HCReportParser.new(params)  if(params[:sender].place_class.to_s == "HealthCenter")
   end
-  
+
   def self.create_error_report(message, error_message, sender = nil)
-    options = { :sender_address => message[:from], 
+    options = { :sender_address => message[:from],
                 :text => message[:body],
                 :nuntium_token => message[:guid],
                 :error => true,

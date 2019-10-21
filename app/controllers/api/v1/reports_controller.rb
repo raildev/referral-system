@@ -11,8 +11,10 @@ module Api::V1
       begin
         sender = User.find_by_phone_number(params[:sender])
         place = Place.find_by_code(params[:place_code])
-        options = {text: params[:text], sender: sender, place_id: place.id, sender_address: params[:sender]}
+        options = {text: params[:text], sender: sender, place_id: place.id,
+          sender_address: params[:sender], from_mis_app: true}
         report = Report.process(options)
+        report.generate_alerts
 
         if report
           render json: {status: 'ok'}

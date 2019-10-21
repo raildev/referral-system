@@ -24,6 +24,8 @@ Local::Application.routes.draw do
   namespace :api do
     namespace :v1 do
       post '/parse_message', to: 'reports#parse_message'
+      post '/users/update_mdzero_user', to: 'users#create'
+      post '/places/update_mdzero_place', to: 'places#create'
     end
   end
 

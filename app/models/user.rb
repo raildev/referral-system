@@ -5,35 +5,35 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable, :password_length => 1..128
 
   attr_accessor :intended_place_code
-  
+
   ROLE_MC_DEFAULT = "default"
   ROLE_MC_NAT = "national"
   ROLE_MC_ADMIN = "admin"
-  
+
   ROLE_REF_PROVIDER = "Private Provider"
   ROLE_REF_HC = "Health center"
   ROLE_REF_FACILITATOR = "Facilitator"
-  
+
   Roles = [ROLE_MC_DEFAULT, ROLE_MC_NAT , ROLE_MC_ADMIN ]
   Roles_Ref = [ROLE_REF_PROVIDER, ROLE_REF_FACILITATOR, ROLE_REF_HC]
-  
+
   APP_REFERAL = "Referral"
   APP_MDO = "MD0"
-  
+
   APPS = [APP_MDO, APP_REFERAL]
-  
+
   STATUS_DEACTIVE = 0
   STATUS_ACTIVE = 1
-  
-  
+
+
   Status = [[ "Deactive" , STATUS_DEACTIVE ], ["Active", STATUS_ACTIVE]]
 
-  
-  
-  
+
+
+
   belongs_to :place
-  
-  
+
+
   has_many :reports, :foreign_key => 'sender_id', :dependent => :destroy
 
   validates_inclusion_of :role, :in => (Roles + Roles_Ref), :allow_nil => true
@@ -42,41 +42,41 @@ class User < ActiveRecord::Base
 
   validates_format_of :phone_number, :with => /^\d+$/, :unless => Proc.new {|user| user.phone_number.blank?}, :message => "Only numbers allowed"
   validate :intended_place_code_must_exist
-  
+
   validate :phone_number_fmt
 
   before_validation :try_fetch_place
   before_save :remove_user_name
   before_save :set_place_class_and_hierarchy, :if => :place_id?
-  before_save :set_nuntium_custom_attributes
+  # before_save :set_nuntium_custom_attributes
   before_destroy :remove_nuntium_custom_attributes
 
   # Delegate country, province, etc., to place
   Place::Types.each { |type| delegate type.tableize.singularize, :to => :place }
 
   #default_scope where(["role != ? AND role != ? ", ROLE_REF_PROVIDER , ROLE_REF_HC ])
-  
-  
+
+
   def apps=(selected_apps)
     filter = ( APPS && selected_apps  )
     filter =  filter.select{|item| !item.blank?}
     # mark (APPS && selected_apps)  != (selected_apps && APPS)
     self.apps_mask = filter.map{|app| 2**APPS.index(app) }.sum
   end
-  
+
 
   def apps
     User.selected_apps self.apps_mask
   end
-  
+
   def self.selected_apps apps_mask
     # 1 -> 1  -> 1  -> 1 APP_MD0
     # 2-> 10  -> 10 -> 1 APP_REFERAL, 0 APP_MDO
-    # 3 -> 11 -> 11 -> 1 APP_REFERAL, 1 APP_MDO, 
+    # 3 -> 11 -> 11 -> 1 APP_REFERAL, 1 APP_MDO,
     bit_apps = apps_mask.to_s(2).reverse
     selecteds = []
-    
-    bit_apps.size.times do |i| 
+
+    bit_apps.size.times do |i|
       if bit_apps[i] == "1"
         selecteds << APPS[i]
       end
@@ -84,58 +84,58 @@ class User < ActiveRecord::Base
     selecteds = [APP_MDO] if selecteds.empty?
     selecteds
   end
-  
+
   def is_village_role?
     self.place.class.to_s == "Village"
   end
-  
+
   def is_health_center_role?
     self.place.class.to_s == "HealthCenter"
   end
-  
+
   def is_private_provider_role?
     self.place.class.to_s == "OD"
   end
-  
+
   def is_from_both?
     # unless all of them are present
     return (self.apps_mask & 3) == 3
   end
-  
+
   def is_from_referral?
     #al least present once
     return (self.apps_mask & 2) != 0
   end
-  
+
   def is_from_md0?
     #al least present once
     return (self.apps_mask & 1) != 0
   end
-  
+
   class << self
     def activated
       self.where :status => true
     end
-    
+
     def md0_users
       self.where("apps_mask = 1 OR apps_mask = 3  ")
     end
-    
+
     def ref_users
       self.where("apps_mask = 2 OR apps_mask = 3  ")
     end
-    
+
     def deactivated
       self.where :status => false
     end
   end
-  
+
   def remove_user_name
      if self.user_name.blank?
        self.user_name = nil
      end
   end
-  
+
   def phone_number_fmt
     if (email.blank? || user_name.blank? || encrypted_password.blank?) && phone_number.blank?
         errors.add(:base,"Phone can't be blank, unless you provide a username, a password and an email")
@@ -145,7 +145,7 @@ class User < ActiveRecord::Base
         errors.add(:base, "Phone number must start with 855 and followed by 8 to 9 digits without space. eg 855125553553")
     end
   end
-  
+
   def write_places_csv source_file
     File.open(places_csv_file_name,"w+b") do |file|
       file.write(source_file.read)
@@ -164,21 +164,21 @@ class User < ActiveRecord::Base
 
   def can_report?
     if place && self.status
-      
+
       if self.is_from_both?
-         return place.village? || place.health_center? 
+         return place.village? || place.health_center?
       end
-      
+
       if self.is_from_md0?
          return place.village? || place.health_center?
-      end  
-      
-      if self.is_from_referral?  
+      end
+
+      if self.is_from_referral?
          return place.village? || place.health_center?
       end
       return false
     end
-    
+
     return false
   end
 
@@ -199,7 +199,7 @@ class User < ActiveRecord::Base
   def self.from_status status
      self::Status.find_index(status) == 0 ? false : true
   end
-  
+
   #===============================================================
   def self.check_user phone
     sender = User.find_by_phone_number phone
@@ -211,11 +211,11 @@ class User < ActiveRecord::Base
     if !sender.can_report?
       raise 'can not report'
     end
-    
+
     sender
-    
+
   end
-  
+
   def message(body)
     {:to => address, :body => body, :from => MessageProxy.app_name}
   end
@@ -355,18 +355,18 @@ class User < ActiveRecord::Base
       self.place_id = should_be_place.id unless should_be_place.nil?
     end
 
-    
-    
+
+
     if self.role == User::ROLE_REF_FACILITATOR && self.od_id
        self.place_id = self.od_id
-       
+
     elsif self.role == User::ROLE_REF_HC && self.health_center_id
        self.place_id = self.health_center_id
-       
+
     elsif self.role == User::ROLE_REF_PROVIDER && self.village_id
        self.place_id = self.village_id
     end
-    
+
   end
 
   def set_nuntium_custom_attributes
@@ -398,7 +398,7 @@ class User < ActiveRecord::Base
   def intended_place_code_must_exist
     errors.add(:intended_place_code, "Place doesn't exist") if self.intended_place_code.present? && (self.place_id.blank? )
   end
-  
+
   def email_required?
     phone_number.nil?
   end
