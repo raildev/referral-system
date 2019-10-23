@@ -12,11 +12,11 @@
     </thead>
     <% @messages.each_with_index do |message, i| %>
       <tr class="<%= i.parity %>">
-        <td><%= message['state'] %></td>
-        <td><%= message['to'].without_protocol %></td>
-        <td><%= message['user'].try(:user_name) %></td>
-        <td><%= message['user'].try(:place).try(:description) %></td>
-        <td><%= message['body'] %></td>
+        <td><%= message.with_indifferent_access['state'] %></td>
+        <td><%= message.with_indifferent_access['to'].without_protocol %></td>
+        <td><%= message.with_indifferent_access['user'].try(:user_name) %></td>
+        <td><%= message.with_indifferent_access['user'].try(:place).try(:description) %></td>
+        <td><%= message.with_indifferent_access['body'] %></td>
       </tr>
     <% end %>
   </table>

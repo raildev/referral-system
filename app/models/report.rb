@@ -206,15 +206,21 @@ class Report < ActiveRecord::Base
   end
 
   def generated_messages
-    messages = Nuntium.new_from_config.get_ao nuntium_token
-    return [] if messages.blank?
+    if self.from_mis_app == true
+      messages = self.generate_alerts
+    else
+      messages = Nuntium.new_from_config.get_ao nuntium_token
+    end
 
-    phone_numbers = messages.map{|x| x['to'].without_protocol}
+
+    return [] if messages.blank?
+    phone_numbers = messages.map{|x| x.with_indifferent_access['to'].without_protocol}
+
     users = User.where(:phone_number => phone_numbers).includes(:place).all
     users = Hash[users.map{|x| [x.phone_number, x]}]
     messages.each do |message|
-      message['user'] = users[message['to'].without_protocol]
-      message['state'] = 'sent' if ['delivered', 'confirmed'].include? message['state']
+      message['user'] = users[message.with_indifferent_access['to'].without_protocol]
+      message['state'] = 'sent' if ['delivered', 'confirmed'].include? message.with_indifferent_access['state']
     end
     messages
   end

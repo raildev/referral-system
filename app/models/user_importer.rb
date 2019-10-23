@@ -32,7 +32,7 @@ class UserImporter < CSV
           user.save
           i += 1
         else
-          p user.errors
+          p "#{phone_number} : #{user.errors.full_messages}"
         end
       end
     end
