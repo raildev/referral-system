@@ -229,6 +229,12 @@ class Report < ActiveRecord::Base
     not self.malaria_type.nil? and (self.malaria_type.upcase == "F" or self.malaria_type.upcase == "M") and self.error_message.nil?
   end
 
+  # for sending alert out when user submit the report through mis_app
+  def _send_alert_to_other
+    nuntium = Nuntium.new_from_config()
+    nuntium.send_ao self.generate_alerts
+  end
+
   private
 
   def complete_fields

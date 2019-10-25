@@ -14,7 +14,7 @@ module Api::V1
         options = {text: params[:text], sender: sender, place_id: place.id,
           sender_address: params[:sender], from_mis_app: true}
         report = Report.process(options)
-        report.generate_alerts
+        report._send_alert_to_other
 
         if report
           render json: {status: 'ok'}
@@ -32,5 +32,6 @@ module Api::V1
           user_name == USER_NAME && password == PASSWORD
         end
       end
+
   end
 end
